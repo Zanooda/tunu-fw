@@ -12,5 +12,6 @@ HWSRC =	\
 	hwconf/shutdown.c \
 
 HWINC = hwconf \
+		hwconf/harrydrive \
 		hwconf/luna \
 		hwconf/other
