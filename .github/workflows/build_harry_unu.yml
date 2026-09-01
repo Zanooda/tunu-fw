@@ -1,0 +1,41 @@
+name: Build harry_UNU
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build harry_UNU
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache ARM SDK
+        id: arm-sdk
+        uses: actions/cache@v4
+        with:
+          path: tools/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi
+          key: arm-sdk-14.3.rel1
+
+      - name: Install ARM SDK
+        if: steps.arm-sdk.outputs.cache-hit != 'true'
+        run: make arm_sdk_install
+
+      - name: Build firmware
+        run: make fw_harry_UNU -j"$(nproc)"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: harry_UNU
+          path: |
+            build/harry_UNU/harry_UNU.bin
+            build/harry_UNU/harry_UNU.hex
+            build/harry_UNU/harry_UNU.elf
