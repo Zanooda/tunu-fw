@@ -256,7 +256,12 @@ void hw_try_restore_i2c(void) {
 
 float hw_get_temp(void) {
 
-	float t1 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 5000.0) / 3950.0) + (1.0 / 298.15)) - 273.15);
+	// Powerstage NTC measured in isolation at 5.5k around 20 C, so R25 ~4.7k
+	// (matched to the original board's 4.7k pull-up). Beta 4080 is from the
+	// original firmware's ADC-to-temperature table, whose shape is independent
+	// of the pull-up. This is a small refinement of the old 5000/3950 (a couple
+	// of C near the derating window).
+	float t1 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 4700.0) / 4080.0) + (1.0 / 298.15)) - 273.15);
 
 	return t1;
 }
