@@ -388,6 +388,14 @@ int main(void) {
 	// This reads the appconf, that must be initialized first.
 #if CAN_ENABLE
 	comm_can_init();
+
+	// The static appconf starts zero-initialised, and CAN_BAUD_125K == 0, so
+	// app_set_configuration() above skips its comm_can_set_baud() call whenever
+	// the stored rate is 125k: the values compare equal and the controller is
+	// left on comm_can_init()'s 500k default. A 125k vehicle bus (TUNU) then
+	// loses the ECU on every boot until something changes the rate at runtime.
+	// Apply the stored rate explicitly once the driver is up.
+	comm_can_set_baud(appconf->can_baud_rate, 0);
 #endif
 
 #ifdef HW_HAS_PERMANENT_NRF
